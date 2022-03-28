@@ -1,12 +1,7 @@
 import { useState } from 'react'
-
-const Numbers = ({persons}) => {
-  return (
-    <>
-    {persons.map((person) => <p key={person.name}>{person.name} {person.number}</p>)}
-    </>
-  )
-}
+import Persons from './components/Persons'
+import PersonForm from './components/PersonForm'
+import Filter from './components/Filter'
 
 const App = () => {
   const [persons, setPersons] = useState([
@@ -16,14 +11,19 @@ const App = () => {
     { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
   ]) 
   const [newName, setNewName] = useState('')
-  const [newNumber, setnewNumber] = useState('')  
-
-  const handleNameChange = (event) => setNewName(event.target.value) 
-  const handleNumberChange = (event) => setnewNumber(event.target.value) 
+  const [newNumber, setnewNumber] = useState('')
+  const [filter, setFilter] = useState('')
   
+  const handleNameChange = (event) => setNewName(event.target.value) 
+  const handleNumberChange = (event) => setnewNumber(event.target.value)
+  const handleFilterChange = (event) => setFilter(event.target.value)
+  
+  const filterRegEx = new RegExp(filter, 'i')
+  const filteredPersons = filter === '' ? persons : persons.filter((p) => p.name.match(filterRegEx))
+
   const handleSubmit = (event) => {
     event.preventDefault()
-    const isNameInPersons = persons.reduce((result, person) => result || person.name == newName, false)
+    const isNameInPersons = persons.reduce((result, person) => result || person.name === newName, false)
 
     if (isNameInPersons) {
       alert(`${newName} is already added to phonebook`)
@@ -41,18 +41,11 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          name: <input value={newName} onChange={handleNameChange}/>
-          number: <input value={newNumber} onChange={handleNumberChange}/>
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-      <h2>Numbers</h2>
-      <Numbers persons = {persons}/>
-      <p>{newName}</p>
+      <Filter filter = {filter} handleFilterChange = {handleFilterChange} />
+      <h3>Add New</h3>
+      <PersonForm handleSubmit = {handleSubmit} newName = {newName} handleNameChange = {handleNameChange} newNumber = {newNumber} handleNumberChange = {handleNumberChange} />
+      <h3>Numbers</h3>
+      <Persons persons = {filteredPersons}/>
     </div>
   )
 }
