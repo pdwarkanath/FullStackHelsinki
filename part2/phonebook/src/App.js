@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Persons from './components/Persons'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
+import Notification from './components/Notification'
 import personService from './services/persons'
 
 const App = () => {
@@ -14,6 +15,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  const [notification, setNotification] = useState(null)
+  const [notificationStyle, setNotificationStyle] = useState('')
   
   const handleNameChange = (event) => setNewName(event.target.value) 
   const handleNumberChange = (event) => setNewNumber(event.target.value)
@@ -38,11 +41,27 @@ const App = () => {
         const id = newNameInPersons[0].id
         personService.update(id, newPerson).then(person => {
           setPersons(persons.map(p => p.id !== person.id ? p : person))
+          setNotificationStyle('success')
+          setNotification(`${person.name}'s number was updated`)
+          setTimeout(() => {
+            setNotification(null)
+          }, 5000)
+        }).catch(err => {
+          setNotificationStyle('error')
+          setNotification(`${newName} does not exist`)
+          setTimeout(() => {
+            setNotification(null)
+          }, 5000)
         })
       }
     } else {
       personService.create(newPerson).then(person => {
           setPersons(persons.concat(person))
+          setNotificationStyle('success')
+          setNotification(`${person.name} was added`)
+          setTimeout(() => {
+            setNotification(null)
+          }, 5000)
           setNewName('')
           setNewNumber('')
         })
@@ -51,15 +70,28 @@ const App = () => {
 
   const handleDelete = (id, name) => {
       if (window.confirm(`Are you sure you want to delete ${name}`)) {
-        personService.deletePerson(id).then(res => {
+        personService.deletePerson(id)
+        .then(res => {
           console.log(`deleted ${id}`)
+          setNotificationStyle('success')
+          setNotification(`${name} was deleted`)
+          setTimeout(() => {
+            setNotification(null)
+          }, 5000)
           setPersons(persons.filter(p => p.id !== id))
+      }).catch(err => {
+        setNotificationStyle('error')
+        setNotification(`${name} does not exist`)
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
       })
     }
   }
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification notification = {notification} notificationStyle={notificationStyle}/>
       <Filter filter = {filter} handleFilterChange = {handleFilterChange} />
       <h3>Add New</h3>
       <PersonForm handleSubmit = {handleSubmit} newName = {newName} handleNameChange = {handleNameChange} newNumber = {newNumber} handleNumberChange = {handleNumberChange} />
