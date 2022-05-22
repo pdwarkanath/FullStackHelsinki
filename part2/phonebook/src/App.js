@@ -46,9 +46,10 @@ const App = () => {
           setTimeout(() => {
             setNotification(null)
           }, 5000)
-        }).catch(err => {
+        }).catch(error => {
           setNotificationStyle('error')
-          setNotification(`${newName} does not exist`)
+          //console.log(error.response.data.error)
+          setNotification(error.response.data.error)
           setTimeout(() => {
             setNotification(null)
           }, 5000)
@@ -64,6 +65,12 @@ const App = () => {
           }, 5000)
           setNewName('')
           setNewNumber('')
+        }).catch(error => {
+          setNotificationStyle('error')
+          setNotification(error.response.data.error)
+          setTimeout(() => {
+            setNotification(null)
+          }, 5000)
         })
     }
   }
