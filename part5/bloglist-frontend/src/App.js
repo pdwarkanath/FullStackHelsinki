@@ -28,14 +28,14 @@ const App = () => {
     event.preventDefault()
     
     try {
-      const user = await loginService.login({
+      const loginUser = await loginService.login({
         username, password,
       })
       window.localStorage.setItem(
-        'loggedBlogappUser', JSON.stringify(user)
+        'loggedBlogappUser', JSON.stringify(loginUser)
       )
-      setUser(user)
-      blogService.setToken(user.token)
+      setUser(loginUser)
+      blogService.setToken(loginUser.token)
       setUsername('')
       setPassword('')
     } catch (exception) {

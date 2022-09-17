@@ -10,7 +10,6 @@ const Weather = ({city}) => {
         getWeather()
         return () => {}
     }, [city])
-    console.log(weather)
     if (Object.keys(weather).length){
         const weather_icon_url = `http://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`
         return (
