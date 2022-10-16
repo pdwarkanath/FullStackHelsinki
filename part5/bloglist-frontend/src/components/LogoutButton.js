@@ -1,3 +1,3 @@
-const LogoutButton = ({ text, handleLogout }) => <button onClick={handleLogout}>{text}</button>
+const LogoutButton = ({ handleLogout }) => <button onClick={handleLogout}>Logout</button>
 
 export default LogoutButton

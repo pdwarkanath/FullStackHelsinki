@@ -1,43 +1,34 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
-import LoginForm from './components/LoginForm'
-import BlogForm from './components/BlogForm'
+import LoginLogout from './components/LoginLogout'
+import TogglableBlogForm from './components/TogglableBlogForm'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
 
 const App = () => {
-  const logoutText = 'logout'
+  const [user, setUser] = useState(null)
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('')
   const [notification, setNotification] = useState(null)
   const [notificationStyle, setNotificationStyle] = useState('')
-  const [password, setPassword] = useState('')
-  const [user, setUser] = useState(null)
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setURL] = useState('')
-  
+
   const handleLogout = () => {
     window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
   }
   
-  const handleLogin = async (event) => {
-    event.preventDefault()
-    
+  const handleLogin = async (loggingInUser) => {
     try {
       const loginUser = await loginService.login({
-        username, password,
+        username: loggingInUser.username, 
+        password: loggingInUser.password
       })
       window.localStorage.setItem(
         'loggedBlogappUser', JSON.stringify(loginUser)
       )
       setUser(loginUser)
       blogService.setToken(loginUser.token)
-      setUsername('')
-      setPassword('')
     } catch (exception) {
       setNotificationStyle('error')
       setNotification('Wrong credentials')
@@ -46,33 +37,37 @@ const App = () => {
       }, 5000)
     }
   }
-
-  const handleCreate = async (event) => {
-    event.preventDefault()
-    const newBlog = {
-      title: title,
-      author: author,
-      url: url
-    }
+  
+  const handleCreate = async (newBlog) => {
     try {
       await blogService.create(newBlog)
       setNotificationStyle('success')
-      setNotification(`New blog ${title} added`)
+      setNotification(`New blog ${newBlog.title} added`)
       setTimeout(() => {
         setNotification(null)
       }, 5000)
       setBlogs(blogs.concat(newBlog))
-      setTitle('')
-      setAuthor('')
-      setURL('')
     } catch (exception) {
       setNotificationStyle('error')
-      setNotification(`Could not add ${title}`)
+      setNotification(`Could not add ${newBlog.title}`)
       setTimeout(() => {
         setNotification(null)
       }, 5000)
     }
 
+  }
+
+  const handleLike = async (id) => {
+    const newBlog = blogs.filter(blog => blog.id === id)[0]
+    newBlog.likes += 1
+    setBlogs(blogs.filter(blog => blog.id !== id).concat(newBlog))
+    await blogService.like(id, newBlog)
+  }
+  const handleDelete = async (id, title, author) => {
+    if (window.confirm(`Remove ${title} by ${author}?`)) {
+      setBlogs(blogs.filter(blog => blog.id !== id))
+      await (blogService.remove(id))
+    }
   }
 
   useEffect(() => {
@@ -95,9 +90,11 @@ const App = () => {
     <div>
       <h2>Blogs</h2>
       <Notification notification = {notification} notificationStyle={notificationStyle}/>
-      <LoginForm user={user} logoutText={logoutText} handleLogout = {handleLogout} username={username} password={password} handleLogin={handleLogin} setUsername={setUsername} setPassword={setPassword}/>
-      <BlogForm user={user} title={title} setTitle={setTitle} author={author} setAuthor={setAuthor} url={url} setURL={setURL} handleCreate={handleCreate} />
-      {blogs.map(blog => <Blog key={blog.id} blog={blog} />)}
+      <LoginLogout user={user} handleLogout = {handleLogout} handleLogin={handleLogin} />
+      <TogglableBlogForm user={user} handleCreate={handleCreate} />
+      {blogs
+        .sort((prev, curr) =>  curr.likes - prev.likes)
+        .map(blog => <Blog key={blog.id} user={user} blog={blog} handleLike={() => handleLike(blog.id)} handleDelete={() => handleDelete(blog.id, blog.title, blog.author)}/>)}
     </div>
   )
 }
