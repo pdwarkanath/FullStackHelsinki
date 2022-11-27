@@ -26,11 +26,11 @@ const remove = async (id) => {
   await axios.delete(`${baseUrl}/${id}`, config)
 }
 
-const like = async (id, newObject) => {
+const update = async (id, newObject) => {
   const config = {
     headers: { Authorization: token },
   }
   await axios.patch(`${baseUrl}/${id}`, newObject, config)
 }
 
-export default { getAll, setToken, create, remove, like }
+export default { getAll, setToken, create, remove, update }

@@ -12,14 +12,10 @@ const App = () => {
       .then(data => setPersons(data))
   }, [])
   
-  const [newName, setNewName] = useState('')
-  const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
   const [notification, setNotification] = useState(null)
   const [notificationStyle, setNotificationStyle] = useState('')
   
-  const handleNameChange = (event) => setNewName(event.target.value) 
-  const handleNumberChange = (event) => setNewNumber(event.target.value)
   const handleFilterChange = (event) => setFilter(event.target.value)
   
   const filterRegEx = new RegExp(filter, 'i')
@@ -27,6 +23,8 @@ const App = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault()
+    const newName = event.target.name.value
+    const newNumber = event.target.number.value
     const newPerson = {
       name: newName,
       number: newNumber
@@ -62,8 +60,6 @@ const App = () => {
           setTimeout(() => {
             setNotification(null)
           }, 5000)
-          setNewName('')
-          setNewNumber('')
         }).catch(error => {
           setNotificationStyle('error')
           setNotification(error.response.data.error)
@@ -100,7 +96,7 @@ const App = () => {
       <Notification notification = {notification} notificationStyle={notificationStyle}/>
       <Filter filter = {filter} handleFilterChange = {handleFilterChange} />
       <h3>Add New</h3>
-      <PersonForm handleSubmit = {handleSubmit} newName = {newName} handleNameChange = {handleNameChange} newNumber = {newNumber} handleNumberChange = {handleNumberChange} />
+      <PersonForm handleSubmit = {handleSubmit} />
       <h3>Numbers</h3>
       <Persons persons = {filteredPersons} handleDelete = {handleDelete} />
     </div>

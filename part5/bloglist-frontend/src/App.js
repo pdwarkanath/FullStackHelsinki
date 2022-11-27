@@ -58,10 +58,10 @@ const App = () => {
   }
 
   const handleLike = async (id) => {
-    const newBlog = blogs.filter(blog => blog.id === id)[0]
+    const newBlog = blogs.find(blog => blog.id === id)
     newBlog.likes += 1
     setBlogs(blogs.filter(blog => blog.id !== id).concat(newBlog))
-    await blogService.like(id, newBlog)
+    await blogService.update(id, newBlog)
   }
   const handleDelete = async (id, title, author) => {
     if (window.confirm(`Remove ${title} by ${author}?`)) {
