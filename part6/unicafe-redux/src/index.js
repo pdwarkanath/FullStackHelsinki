@@ -6,41 +6,23 @@ import reducer from './reducer'
 const store = createStore(reducer)
 
 const App = () => {
-  const good = () => {
+  const reviews = ['good', 'bad', 'ok']
+
+  const dispatch = (review) => {
     store.dispatch({
-      type: 'GOOD'
+      type: review.toUpperCase()
     })
   }
 
-  const ok = () => {
-    store.dispatch({
-      type: 'OK'
-    })
-  }
-
-  const bad = () => {
-    store.dispatch({
-      type: 'BAD'
-    })
-  }
-
-  const zero = () => {
-    store.dispatch({
-      type: 'ZERO'
-    })
-  }
-  let all = Object.values(store.getState()).reduce((acc, val) => acc + val, 0)
-  let average = all === 0 ? 0 : (store.getState().good - store.getState().bad)/all
-  let positive = all === 0 ? 0 :store.getState().good/all*100
+  
+  const all = Object.values(store.getState()).reduce((acc, val) => acc + val, 0)
+  const average = all === 0 ? 0 : (store.getState().good - store.getState().bad)/all
+  const positive = all === 0 ? 0 :store.getState().good/all*100
+  
   return (
     <div>
-      <button onClick={good}>good</button>
-      <button onClick={ok}>ok</button>
-      <button onClick={bad}>bad</button>
-      <button onClick={zero}>reset stats</button>
-      <div>good {store.getState().good}</div>
-      <div>ok {store.getState().ok}</div>
-      <div>bad {store.getState().bad}</div>
+      {reviews.map((review, id) => <button key={id} onClick={()=>dispatch(review)}>{review}</button>)}
+      {reviews.map((review, id) => <div key={id}>{review} {store.getState()[review]}</div>)}
       <div>all {all}</div>
       <div>average {average}</div>
       <div>positive {positive}%</div>
